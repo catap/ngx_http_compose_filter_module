@@ -1,0 +1,18 @@
+Compose module for nginx.
+
+This module allows compose several subrequests into one reply.  The
+same thing may be achieved by SSI, but unlike SSI this module will also
+set Content-Length and allow range requests.
+
+Basically it grabs X-Compose and X-Compose-Length headers from original
+reply and does the following:
+
+    1. If X-Compose-Length present, sets Content-Length to it's value.
+    2. Composes multiple subrequests from X-Compose headers.
+
+When used without X-Compose-Length it's basically identical to SSI and
+not needed.  The X-Compose-Length header must be calculated correctly by
+somebody.
+
+To compile nginx with compose module, use "--add-module <path>" option to
+nginx configure.
