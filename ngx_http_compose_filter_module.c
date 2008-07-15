@@ -220,7 +220,7 @@ ngx_http_compose_body_filter(ngx_http_request_t *r, ngx_chain_t *in)
 {
     ngx_str_t                 *uri, args;
     ngx_int_t                  rc;
-    ngx_uint_t                 i, flags;
+    ngx_uint_t                 i, flags, last;
     ngx_http_request_t        *sr;
     ngx_http_compose_ctx_t    *ctx;
 
@@ -238,11 +238,8 @@ ngx_http_compose_body_filter(ngx_http_request_t *r, ngx_chain_t *in)
     if (ctx->done) {
         ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                        "compose body filter: done");
-        /* XXX wrong: should skip data instead */
         return ngx_http_next_body_filter(r, in);
     }
-
-    ctx->done = 1;
 
     ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                    "compose body filter, doing work");
@@ -250,6 +247,22 @@ ngx_http_compose_body_filter(ngx_http_request_t *r, ngx_chain_t *in)
     /*
      * Ignore body that comes to us, replace it with subrequests.
      */
+
+    last = 0;
+
+    for ( ; in; in = in->next) {
+        in->buf->pos = in->buf->last;
+        if (in->buf->last_buf) {
+            last = 1;
+            in->buf->last_buf = 0;
+        }
+    }
+
+    if (!last) {
+        return NGX_OK;
+    }
+
+    ctx->done = 1;
 
     uri = ctx->parts.elts;
 
@@ -269,16 +282,6 @@ ngx_http_compose_body_filter(ngx_http_request_t *r, ngx_chain_t *in)
             return rc;
         }
     }
-
-    for ( ; in; in = in->next) {
-        in->buf->pos = in->buf->last;
-        in->buf->last_buf = 0;
-    }
-
-    /*
-     * XXX: what to do if non-static data? probably we should use post
-     * subrequest hook instead
-     */
 
     return ngx_http_send_special(r, NGX_HTTP_LAST);
 }
