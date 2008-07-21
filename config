@@ -3,6 +3,12 @@
 
 ngx_addon_name="ngx_http_compose_filter_module"
 
+if [ $HTTP_POSTPONE != YES ]; then
+    echo "$0: error: $ngx_addon_name requires postpone filter"
+    echo "  either configure with ssi or with addition modules"
+    exit 1
+fi
+
 HTTP_FILTER_MODULES="$HTTP_FILTER_MODULES \
 		ngx_http_compose_filter_module"
 
