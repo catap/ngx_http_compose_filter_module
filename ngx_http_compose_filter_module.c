@@ -168,7 +168,7 @@ ngx_http_compose_header_filter(ngx_http_request_t *r)
                                sizeof("X-Compose-Length") - 1)
                == 0)
         {
-            ngx_log_debug3(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+            ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                            "compose body filter: bingo, %V, %V",
                            &header[i].key, &header[i].value);
 
@@ -188,7 +188,7 @@ ngx_http_compose_header_filter(ngx_http_request_t *r)
                                sizeof("X-Compose") - 1)
                == 0)
         {
-            ngx_log_debug3(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+            ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                            "compose body filter: bingo, %V, %V",
                            &header[i].key, &header[i].value);
 
