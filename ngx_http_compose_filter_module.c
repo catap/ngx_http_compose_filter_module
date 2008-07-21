@@ -211,6 +211,9 @@ ngx_http_compose_header_filter(ngx_http_request_t *r)
 
     ngx_http_set_ctx(r, ctx, ngx_http_compose_filter_module);
 
+    r->allow_ranges = 1;
+    r->late_ranges = 1;
+
     return ngx_http_next_header_filter(r);
 }
 
