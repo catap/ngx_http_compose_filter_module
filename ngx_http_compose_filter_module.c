@@ -108,6 +108,7 @@ static ngx_http_output_body_filter_pt    ngx_http_next_body_filter;
 static ngx_int_t
 ngx_http_compose_header_filter(ngx_http_request_t *r)
 {
+    off_t                     len;
     ngx_uint_t                i;
     ngx_str_t                *uri;
     ngx_list_part_t          *part;
@@ -146,6 +147,7 @@ ngx_http_compose_header_filter(ngx_http_request_t *r)
 
     part = &r->headers_out.headers.part;
     header = part->elts;
+    len = -1;
 
     for (i = 0; /* void */; i++) {
 
@@ -174,13 +176,7 @@ ngx_http_compose_header_filter(ngx_http_request_t *r)
 
             header[i].hash = 0;
 
-            r->headers_out.content_length_n = ngx_atoof(header[i].value.data,
-                                                        header[i].value.len);
-
-            if (r->headers_out.content_length) {
-                r->headers_out.content_length->hash = 0;
-                r->headers_out.content_length = NULL;
-            }
+            len = ngx_atoof(header[i].value.data, header[i].value.len);
         }
 
         if (header[i].key.len == sizeof("X-Compose") - 1
@@ -208,11 +204,26 @@ ngx_http_compose_header_filter(ngx_http_request_t *r)
         }
     }
 
+    if (ctx->parts.nelts == 0) {
+        return ngx_http_next_header_filter(r);
+    }
+
+    r->headers_out.content_length_n = len;
+
+    if (r->headers_out.content_length) {
+        r->headers_out.content_length->hash = 0;
+        r->headers_out.content_length = NULL;
+    }
 
     ngx_http_set_ctx(r, ctx, ngx_http_compose_filter_module);
 
-    r->allow_ranges = 1;
-    r->late_ranges = 1;
+    if (len != -1) {
+        r->allow_ranges = 1;
+        r->late_ranges = 1;
+
+    } else {
+        ngx_http_clear_accept_ranges(r);
+    }
 
     return ngx_http_next_header_filter(r);
 }
