@@ -220,6 +220,7 @@ ngx_http_compose_header_filter(ngx_http_request_t *r)
     if (len != -1) {
         r->allow_ranges = 1;
         r->late_ranges = 1;
+        r->headers_out.status_line.len = 0;
 
     } else {
         ngx_http_clear_accept_ranges(r);
