@@ -166,7 +166,8 @@ ngx_http_compose_header_filter(ngx_http_request_t *r)
         }
 
         if (header[i].key.len == sizeof("X-Compose-Length") - 1
-            && ngx_strncasecmp(header[i].key.data, "X-Compose-Length",
+            && ngx_strncasecmp(header[i].key.data,
+                               (u_char *)"X-Compose-Length",
                                sizeof("X-Compose-Length") - 1)
                == 0)
         {
@@ -180,7 +181,7 @@ ngx_http_compose_header_filter(ngx_http_request_t *r)
         }
 
         if (header[i].key.len == sizeof("X-Compose") - 1
-            && ngx_strncasecmp(header[i].key.data, "X-Compose",
+            && ngx_strncasecmp(header[i].key.data, (u_char *)"X-Compose",
                                sizeof("X-Compose") - 1)
                == 0)
         {
